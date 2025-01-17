@@ -21,15 +21,41 @@ if(!empty($_POST)){
     $path = $_POST['path'];
     $folder_path = "uploads/".str_replace("@","/",$path);
 
-    $file = $_FILES['file']['tmp_name'];
-    $dest = $folder_path."/".$_FILES['file']['name'];
-    
-    # 將檔案移至指定位置    
-    if (move_uploaded_file($file, $dest)) {
-      //echo "文件已成功上傳：" . htmlspecialchars($fileName);
-    } else {
-        //echo "文件上傳失敗。";
-    }
+    //檢查是否有相同檔名
+    $check = get_files($folder_path);    
+    if(in_array($_FILES['file']['name'],$check['files'])){
+      echo "此資料夾內已有相同檔名，請回上頁重新一次！<br><p>此頁面將在 <span id=\"countdown\">5</span> 秒後自動返回上一頁...</p>";
+      echo "
+          <script>
+              window.onload = function() {
+                  let countdown = 5; // 倒數秒數
+                  const countdownElement = document.getElementById(\"countdown\");
+
+                  const interval = setInterval(function() {
+                      countdown--;
+                      countdownElement.textContent = countdown;
+
+                      if (countdown <= 0) {
+                          clearInterval(interval); // 停止倒數
+                          window.history.back(); // 返回上一頁
+                      }
+                  }, 1000); // 每秒執行一次
+              };
+          </script>
+      
+      ";
+      die();
+    }else{
+      $file = $_FILES['file']['tmp_name'];
+      $dest = $folder_path."/".$_FILES['file']['name'];
+      
+      # 將檔案移至指定位置    
+      if (move_uploaded_file($file, $dest)) {
+        //echo "文件已成功上傳：" . htmlspecialchars($fileName);
+      } else {
+          //echo "文件上傳失敗。";
+      }
+    }    
   } else {
     //echo '錯誤代碼：' . $_FILES['my_file']['error'] . '<br/>';
   }
